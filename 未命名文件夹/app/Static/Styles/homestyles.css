@@ -1,0 +1,37 @@
+/* 
+Homepage CSS
+*/
+
+/* Set size of nav bar */
+.sidebar {
+    width: 15%;
+    background-color: #343a40;
+    position: fixed;
+    left: 0;
+    height: 100%;
+    overflow: auto;
+  }
+
+.sidebar a{
+    padding: 32px;
+    display: block;
+    color: lightblue;
+}
+
+/* Adding hover to nav bar */
+.sidebar a:hover {
+    background-color: lightblue;
+    color: gray;
+}
+
+
+/* Bootstrap button colouring.*/
+.btn-primary {
+    background-color: #333333;
+    border-color: lightblue;
+    color: #F5F5F5;
+}
+
+.topBarBtn {
+    margin-top: 15px;
+}

@@ -1,0 +1,72 @@
+{% extends 'Home.html' %}
+{% block content %}
+<div id="profile_settings_page">
+  <div class="form-container">
+    <form>
+      <div id="profile_photo_display" class="form-row">
+        <div id="profile_photo_container">
+          <img id="profile_photo" class="" src="{{ profile_photo }}" alt="profile icon"/>
+          <input id="profile_photo_upload_button" type='file' name='image' accept="image/png, image/gif, image/jpeg" onchange="changeProfilePhoto(this)">
+          <label id="profile_upload_label" for="profile_photo_upload_button" class="hidden">Change Photo</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="description" class="description-label"> Contact Name</label><br>
+        <input readonly value="{{ contact_name }}" type="text" class="description-input" name="text">
+      </div>
+
+      <div class="form-row">
+        <label for="description" class="description-label">Business Name</label><br>
+        <input readonly value="{{ business_name }}" type="text" class="description-input" name="text">
+      </div>
+
+      <div class="form-row">
+        <label for="quantity" class="description-label">Phone Number</label><br>
+        <input readonly value="{{ phone_number }}" type="text" class="description-input" name="text">
+      </div>
+
+      <div class="form-row">
+        <label for="description" class="description-label">Location</label><br>
+        <input readonly value="{{ location }}" type="text" class="description-input" name="text">
+      </div>
+
+      <div class="form-row">
+        <label for="description" class="description-label">E-mail Address</label><br>
+        <input readonly value="{{ email }}" type="text" class="description-input" name="text">
+      </div>
+
+      <div class="form-row">
+        <label for="description" class="description-label">ABN</label><br>
+        <input readonly value="{{ abn }}" class="description-input">
+      </div>
+
+      <div class="form-row">
+        <label for="description" class="description-label">Donor/Collector</label><br>
+        <input readonly value="{{ user_type }}" class="description-input">
+      </div>
+
+    </form>
+  </div>
+
+  <button id="save_profile_settings" class="button hidden">
+    Save
+  </button>
+</div>
+
+    <script>
+        function uploadPhoto(input) {
+          // 调用/update_photo路由上传
+          fetch('/update_photo', {
+            method: 'POST',
+            body: input.files[0]
+          });
+        }
+
+        function changeProfilePhoto(input) {
+          let image_placement = document.getElementById("profile_photo");
+          image_placement.src = URL.createObjectURL(input.files[0]);
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends 'Home.html' %}
+
+{% macro set_open(value) %}
+{% set open = value %}
+{% endmacro %}
+{% macro handleOpen() %}
+{{ setOpen(true) }}
+{% endmacro %}
+{% macro handleClose() %}
+{{ set_open(false) }}
+{% endmacro %}
+
+{% block content %}
+
+{% include 'SearchPage.html' %}
+
+<button id="open_completed_modal" onclick="{{ handleOpen() }}">
+    Open modal
+</button>
+
+<div>
+  <modal
+    open={{open}}
+    onclose="{{ handleClose() }}"
+    aria-labelledby="modal-modal-title"
+    aria-describedby="modal-modal-description"
+  >
+    <div sx={{style}}>
+      <h2 id="modal-modal-title" >
+        Donation Saved Successfully
+      </h2>
+      <p id="modal-modal-description" sx={{mt: 2}}>
+      </p>
+      <button onclick="handleClose()">
+        Ok
+      </button>
+    </div>
+  </modal>
+</div>
+
+<div id="individual_product_modal">
+    {% include 'IndividualProduct.html' %}
+</div>
+
+<div id="exit_modal" onclick="hideModals()">
+    <div>x</div>
+</div>
+
+<div id="list_page">
+  <div id="search_bar" onclick="showSearch()">
+    <img src="{{ url_for('static', filename='Search.png') }}">
+    <input></input>
+  </div>
+
+  <div class="product_list">
+    {% for content in foodItems if content.isCompleted != true %}
+      <Products
+          key={{contents.id}}
+          category={{content.category}}
+          completionDate={{content.completionDate}}
+          createdAt={{contents.createdAt}}
+          description={{contents.description}}
+          donorID={{contents.donorID}}
+          donorName={{contents.donorName}}
+          donorPhone={{contents.donorPhone}}
+          end_time={{contents.end_time}}
+          donationID={{contents.id}}
+          isCompleted={{contents.isCompleted}}
+          nfpID={{contents.nfpID}}
+          pickup_date={{contents.pickup_date}}
+          pickup_location={{contents.pickup_location}}
+          picture={{contents.picture}}
+          quantity={{contents.quantity}}
+          start_time={{contents.start_time}}
+          title={{contents.title}}
+          transport_reqs={{contents.transport_reqs}}
+          updatedAt={{contents.updatedAt}}
+          deleted={{contents._deleted}}
+          _lastChangedAt={{contents._lastChangedAt}}
+      />
+    {% endfor %}
+  </div>
+</div>
+
+<div id="user_id" class="hidden"></div>
+
+<script>
+    var search;
+    var individual_product;
+    var list_page;
+    var exit_button;
+    const style = {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: 400,
+      bgcolor: 'background.paper',
+      border: '2px solid #000',
+      boxShadow: 24,
+      p: 4,
+    };
+    bindEvents();
+
+
+    function bindEvents() {
+      // 获取DOM元素
+      search=document.getElementById("search_modal");
+      individual_product=document.getElementById("individual_product_modal");
+      list_page=document.getElementById("list_page");
+      exit_button=document.getElementById("exit_modal");
+
+        // 绑定事件
+        document.getElementById('search_bar').addEventListener('click', showSearch);
+        document.getElementById("exit_modal").addEventListener("click", hideModals);
+        document.getElementById("claim_donation_button").addEventListener("click",addToSaved)
+
+        // 循环绑定事件
+        let products=document.getElementsByClassName("products_component");
+        for (let i=0;i<products.length;i++){
+          products[i].addEventListener("click",openIndividualProductModal);
+        }
+
+        let product_images=document.getElementsByClassName("productImage");
+        for (let i=0;i<product_images.length;i++){
+          product_images[i].addEventListener("error",defaultImageReplace);
+        }
+        let individual_product_modal_image=document.getElementById("display_image");
+        individual_product_modal_image.addEventListener("error",defaultImageReplace);
+
+        fetchAttributes();
+
+        fetchDonations();
+    }
+
+    function hideModals() {
+      document.getElementById("search").style.display = "none";
+      document.getElementById("individual_product").style.display = "none";
+      document.getElementById("list_page").style.display = "block";
+      document.getElementById("exit_button").style.display = "none";
+    }
+    function showSearch(){
+        search.style.display="block";
+        individual_product.style.display="none";
+        list_page.style.display="none";
+        exit_button.style.display="flex";
+    }
+    function addToSaved(){
+        let donationInformation=getDonationInfo(this.parentElement.parentElement);
+        let donationID=donationInformation.donationID;
+        let nfpID=document.getElementById("user_id").innerHTML;
+        console.log(donationID, nfpID);
+        let favouriteRow={
+          donationID:"",
+          userID:""
+        };
+        favouriteRow.donationID=donationID;
+        favouriteRow.userID=nfpID;
+        console.log(favouriteRow);
+        addDonation(favouriteRow);
+      }
+
+      //The fetch attributes function retrives the details of the current authenticated user and extracts the attributes field
+  const fetchAttributes = async() => {
+    try{
+            const userData = await Auth.currentAuthenticatedUser();
+            const attributesList = userData.attributes;
+            document.getElementById("user_id").innerHTML=attributesList.sub;
+        } catch (error) {
+            console.log('error in fetching user data', error);
+        }
+    };
+
+      async function addDonation(favouriteItem) {
+      try {
+          const newFavouriteItem = await API.graphql({query:mutations.createFavouritesTable, variables:{input:favouriteItem}});
+          console.log(newFavouriteItem);
+          console.log("add  favourites worked");
+          handleOpen();
+      } catch (err) {
+          console.log('error: ', err)
+      }
+  }
+
+      //triggered when clicking a product card
+    //inserts product information into the individual product modal
+    function openIndividualProductModal(){
+      let donationInfo=getDonationInfo(this);
+      let transport_reqs=donationInfo.transport_reqs;
+      let donation_picture=donationInfo.picture;
+      individual_product= document.getElementById("individual_product_modal");
+      updateHiddenVariables(donationInfo,individual_product);
+      let donation_id=this.querySelector(".donationID").innerHTML;
+      exit_button=document.getElementById("exit_modal");
+      if (transport_reqs==undefined){
+        transport_reqs="No requirements listed by donor."
+      }
+        if (donation_picture==""){
+          donation_picture=Logo;
+        }
+       //stylising individual modal
+       individual_product.querySelector("#display_image").src=donation_picture;
+       individual_product.querySelector("#individual_product_title").innerHTML=donationInfo.title;
+       individual_product.querySelector("#individual_product_description").innerHTML=donationInfo.description;
+       individual_product.querySelector("#individual_product_location").innerHTML=donationInfo.pickup_location;
+       individual_product.querySelector("#individual_product_pickupby").innerHTML=donationInfo.pickup_date;
+       individual_product.querySelector("#individual_product_pickuptime").innerHTML=donationInfo.start_time+"-"+donationInfo.end_time;
+       individual_product.querySelector("#individual_product_transport_requirements").innerHTML=transport_reqs;
+       individual_product.querySelector("#individual_product_seller_name").innerHTML=donationInfo.donorName;
+       individual_product.querySelector("#individual_product_seller_number").innerHTML=donationInfo.donorPhone;
+       individual_product.querySelector("#clickable_phone_number").href="tel:"+donationInfo.donorPhone;
+       individual_product.querySelector("#individual_product_quantity").innerHTML=donationInfo.quantity;
+       individual_product.querySelector("#claim_donation_button").style.display="block";
+        individual_product.querySelector("#remove_donation_button").style.display="none";
+       showIndividualProduct();
+    }
+    //Makes individual_product modal visible
+  function showIndividualProduct(){
+    search.style.display="none";
+    individual_product.style.display="block";
+    list_page.style.display="none";
+    exit_button.style.display="flex";
+    document.getElementById("remove_donation_button").style.display="none";
+  }
+  //Replaces buggy images with ReFood logo
+  function defaultImageReplace(){
+    this.src=Logo;
+  }
+  function updateHiddenVariables(donationInfo, itemToUpdate){
+    let hiddenVariables=itemToUpdate.querySelector(".hidden");
+
+    hiddenVariables.querySelector(".category").innerHTML=donationInfo.category;
+    hiddenVariables.querySelector(".completionDate").innerHTML=donationInfo.completionDate;
+    hiddenVariables.querySelector(".createdAt").innerHTML=donationInfo.createdAt;
+    hiddenVariables.querySelector(".description").innerHTML=donationInfo.description;
+    hiddenVariables.querySelector(".donorID").innerHTML=donationInfo.donorID;
+    hiddenVariables.querySelector(".donorName").innerHTML=donationInfo.donorName;
+    hiddenVariables.querySelector(".donorPhone").innerHTML=donationInfo.donorPhone;
+    hiddenVariables.querySelector(".end_time").innerHTML=donationInfo.end_time;
+    hiddenVariables.querySelector(".donationID").innerHTML=donationInfo.donationID;
+    hiddenVariables.querySelector(".isCompleted").innerHTML=donationInfo.isCompleted;
+    hiddenVariables.querySelector(".nfpID").innerHTML=donationInfo.nfpID;
+    hiddenVariables.querySelector(".pickup_date").innerHTML=donationInfo.pickup_date;
+    hiddenVariables.querySelector(".pickup_location").innerHTML=donationInfo.pickup_location;
+    hiddenVariables.querySelector(".picture").innerHTML=donationInfo.picture;
+    hiddenVariables.querySelector(".quantity").innerHTML=donationInfo.quantity;
+    hiddenVariables.querySelector(".start_time").innerHTML=donationInfo.start_time;
+    hiddenVariables.querySelector(".title").innerHTML=donationInfo.title;
+    hiddenVariables.querySelector(".transport_reqs").innerHTML=donationInfo.transport_reqs;
+    hiddenVariables.querySelector(".updatedAt").innerHTML=donationInfo.updatedAt;
+    hiddenVariables.querySelector("._deleted").innerHTML=donationInfo._deleted;
+    hiddenVariables.querySelector("._lastChangedAt").innerHTML=donationInfo._lastChangedAt;
+  }
+
+  function getDonationInfo(info_containing_module){
+    let currentInfoSkimmer=info_containing_module.querySelector(".hidden");
+    const donationInfo={
+      category:currentInfoSkimmer.querySelector(".category").innerHTML,
+      completionDate:currentInfoSkimmer.querySelector(".completionDate").innerHTML,
+      createdAt:currentInfoSkimmer.querySelector(".createdAt").innerHTML,
+      description:currentInfoSkimmer.querySelector(".description").innerHTML,
+      donorID:currentInfoSkimmer.querySelector(".donorID").innerHTML,
+      donorName:currentInfoSkimmer.querySelector(".donorName").innerHTML,
+      donorPhone:currentInfoSkimmer.querySelector(".donorPhone").innerHTML,
+      end_time:currentInfoSkimmer.querySelector(".end_time").innerHTML,
+      donationID:currentInfoSkimmer.querySelector(".donationID").innerHTML,
+      isCompleted:currentInfoSkimmer.querySelector(".isCompleted").innerHTML,
+      nfpID:currentInfoSkimmer.querySelector(".nfpID").innerHTML,
+      pickup_date:currentInfoSkimmer.querySelector(".pickup_date").innerHTML,
+      pickup_location:currentInfoSkimmer.querySelector(".pickup_location").innerHTML,
+      picture:currentInfoSkimmer.querySelector(".picture").innerHTML,
+      quantity:currentInfoSkimmer.querySelector(".quantity").innerHTML,
+      start_time:currentInfoSkimmer.querySelector(".start_time").innerHTML,
+      title:currentInfoSkimmer.querySelector(".title").innerHTML,
+      transport_reqs:currentInfoSkimmer.querySelector(".transport_reqs").innerHTML,
+      updatedAt:currentInfoSkimmer.querySelector(".updatedAt").innerHTML,
+      deleted:currentInfoSkimmer.querySelector("._deleted").innerHTML,
+      _lastChangedAt:currentInfoSkimmer.querySelector("._lastChangedAt").innerHTML
+    }
+    return donationInfo;
+  }
+
+      // Array to store FoodItems
+    var foodItems = []
+
+    // Fetches donations from database
+    const fetchDonations = async() => {
+     try{
+         const allDonations = await API.graphql({query:queries.listFOODITEMS});
+         const itemList = allDonations.data.listFOODITEMS.items;
+         foodItems = itemList;
+         console.log(itemList);
+
+     } catch (error) {
+         console.log('error in fetching FoodItems', error);
+     }
+
+
+   };
+</script>
+
+{% endblock %}
+

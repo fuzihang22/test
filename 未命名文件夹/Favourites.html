@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<div id="favourites_page">
+    <div id="individual_product_modal">
+
+        <IndividualProduct/>
+    </div>
+
+    <Button id="open_completed_modal" onClick={handleOpen}>Open modal</Button>
+    <div>
+        <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+        >
+            <Box sx={style}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    Donation removed successfully
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    Press ok to return to your saved donations
+                </Typography>
+                <Button href="/orders">
+                    Ok
+                </Button>
+            </Box>
+        </Modal>
+    </div>
+
+    <div id="exit_modal">
+        <div>x</div>
+    </div>
+    <div id="orders_list">
+        <div id="uncompleted_orders_list">
+            <div id="in_progress_orders_header" className="order_type">Favourites</div>
+
+            {foodItems.filter(content => content.isCompleted!=true).map(contents => (
+
+            <Products
+                    key={contents.id}
+                    category={contents.category}
+                    completionDate={contents.completionDate}
+                    createdAt={contents.createdAt}
+                    description={contents.description}
+                    donorID={contents.donorID}
+                    donorName={contents.donorName}
+                    donorPhone={contents.donorPhone}
+
+                    donationID={contents.id}
+                    isCompleted={contents.isCompleted}
+                    nfpID={contents.nfpID}
+                    pickup_date={contents.pickup_date}
+                    pickup_location={contents.pickup_location}
+                    picture={contents.picture}
+
+
+                    quantity={contents.quantity}
+                    end_time={(new Date(contents.end_time)).toLocaleTimeString(
+            'en-US',{hour: 'numeric', minute:'2-digit'})}
+            start_time={(new Date(contents.start_time)).toLocaleTimeString('en-US',{hour: 'numeric', minute:'2-digit'})}
+
+            title={contents.title}
+            transport_reqs={contents.transport_reqs}
+            updatedAt={contents.updatedAt}
+            deleted={contents._deleted}
+            _lastChangedAt={contents._lastChangedAt}
+            />
+
+            ))}
+        </div>
+    </div>
+    <div id="user_id" className="hidden"></div>
+</div>
+</html>

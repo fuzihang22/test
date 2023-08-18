@@ -1,0 +1,40 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-5 offset-3">
+        <h3>Username:</h3>
+        <p>{{user_info.username}}</p>
+        <br>
+        <h3>Email:</h3>
+        <p>{{user_info.email}}</p>
+        <br>
+        <h3>Phone Number:</h3>
+        <p>{{user_info.phone_number}}</p>
+        <br>
+        <h3>Address:</h3>
+        <p>{{user_info.address}}</p>
+        <br>
+        <h3>Buisness:</h3>
+        <p>{{user_info.buisness_name}}</p>
+        <br>
+        <h3>Type of Buisness:</h3>
+        <p>{{user_info.type_of_buisness}}</p>
+        <br>
+        <h3>ABN:</h3>
+        <p>{{user_info.abn}}</p>
+        <a href="{{ url_for('main.editprofile') }}" type="button" class="btn btn-primary">Edit Profile</a>
+        <a href="{{ url_for('main.changepassword') }}" type="button" class="btn btn-primary">Change Password</a>
+    </div>
+    <div class="col-3 offset-1" style="padding-top: 20px;">
+        <h3>Your Current Listings:</h3>
+            {% for listing in Listing %}
+                <p># {{listing.id}}: {{listing.food_item}}</p>
+                <a href="{{ url_for('main.editlisting') }}" type="button" class="btn btn-primary">Edit Listing # {{listing.id}}</a>
+            {% endfor %}
+        
+    </div>
+</div>
+
+{% endblock content %}
