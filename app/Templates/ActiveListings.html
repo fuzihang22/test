@@ -1,0 +1,38 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-8 offset-2">
+        <br>
+        {% for listing in Listings %}
+        {% if (listing.author == user or listing.accepteduser == user) and listing.accepted_listing == True %}
+            <h2 id={{listing.author.username}}>{{listing.author.buisness_name}}</h2>
+            <p>Address: {{listing.address}}</p>
+            <form method="POST" action="/acceptlisting/{{listing.id}}">
+                {{ form.hidden_tag() }}
+                {{ form.submit() }}
+            </form>
+            <br>
+            <div>
+                <table class="table table-striped">
+                    <tr>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Description</th>
+                    </tr>
+                    {% for product in listing.food_products %}
+                        <tr>
+                            <td>{{product.category}}</td>
+                            <td>{{product.quantity}}</td>
+                            <td>{{product.description}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>    
+            </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}

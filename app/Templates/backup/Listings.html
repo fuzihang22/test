@@ -1,0 +1,32 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-9 offset-3">
+        {% for listing in Listing %}
+            {% if listing.accepted_listing == False %}
+                <h1>User: {{listing.author.username}}</h1>
+                <p>Address: {{listing.address}}</p>
+                <p>ABN: {{listing.abn}}</p>
+                <p>accepted: {{listing.accepted_listing}}</p>
+                <p>accepted user: {{listing.accepted_user_id}}</p>
+                <br>
+                {% for product in listing.food_products %}
+                    <p>Category: {{product.category}}</p>
+                    <p>Quantity: {{product.quantity}}</p>
+                    <p>Description: {{product.description}}</p>
+                    <br>
+                {% endfor %}
+                {% if listing.author.id != user.id %}
+                <form method="POST" action="/acceptlisting/{{listing.id}}">
+                    {{ form.hidden_tag() }}
+                    {{ form.submit() }}
+                {% endif %}
+                </form>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}

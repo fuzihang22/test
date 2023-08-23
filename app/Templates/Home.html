@@ -1,5 +1,43 @@
 {% extends "Base.html" %}
 
 {% block content %}
+<style>
+body {
+    background: linear-gradient(to right, #F2F2F2, #D5EBFD);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+    align-items: center; /* Center the content vertically */
+    min-height: 80vh; /* Ensure the body at least covers the viewport height */
+}
 
+.content-box {
+    background-color: #FFFFFF;
+    padding: 20px;
+    border: 1px solid #CCCCCC;
+    width: 80%; /* Adjust the width as needed */
+    max-width: 800px; /* Limit the maximum width if desired */
+    margin: 20px; /* Keep the original margin for spacing between boxes */
+    /* Add a margin-left to move the boxes to the right */
+    margin-left: calc(16.666%); /* 100% / 6 = 16.666% */
+}
+
+</style>
+   <div class="content-box">
+    <h1>Welcome to ReFood</h1>
+    <p>Help us reduce food waste!</p>
+   </div>
+
+   <div class="content-box">
+    <h2>Get Involved</h2>
+    <p>Join us in our mission to make a positive impact on both the environment and the community. You can:</p>
+    <ul>
+        <li>Upload details about excess food from your business</li>
+        <li>Receive notifications when your donations are matched</li>
+        <li>Connect with local not-for-profit organizations</li>
+        <li>Track your donation history and generate reports</li>
+    </ul>
+</div>
+<img src="foodwaste.jpg" alt="Food Waste">
 {% endblock %}

@@ -1,0 +1,122 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    #chat-container {
+      width: 300px;
+      background-color: #6c5ce7;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #chat-messages {
+      height: 300px;
+      overflow: auto;
+      border: 1px solid #ddd;
+      padding: 5px;
+      background-color: #f9f7fd;
+      border-radius: 5px;
+    }
+    #message-input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 10px;
+      background-color: #f0ebf7;
+      color: #333;
+      box-sizing: border-box;
+    }
+    #send-button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #4834d4;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #send-button:hover {
+      transform: translateY(-2px); /* basically make the button appear 3d by moving it forwards/up a bit */
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    }
+  
+    .user-message {
+      text-align: left;
+    }
+  
+    .notYou-message {
+      text-align: right;
+      color: #3cba54; /* Green color for bot messages */
+    }
+  
+  </style>
+
+<div class="row">
+    <div class="col-3 offset-3">
+        <div id="chat-container">
+            <div id="chat-messages"></div>
+            <input type="text" id="message-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+          </div>
+          
+          <script>
+            const chatMessages = document.getElementById('chat-messages');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+          
+            sendButton.addEventListener('click', sendMessage);
+          
+            function sendMessage() {
+              const message = messageInput.value.trim();
+              if (message !== '') {
+                const messageElement = document.createElement('div');//creates a div for the message 
+                messageElement.textContent = 'You: ' + message;//adds the div to the chat box
+                chatMessages.appendChild(messageElement);//once the message is added to the chat the box is set to empty 
+                receiveMessage(message); //echos back
+                messageInput.value = '';
+              }
+            }
+          
+            //this will be used to check from DB the other persons texts and display then S
+            function receiveMessage(message) {
+              const receivedMessageElement = document.createElement('div');
+              receivedMessageElement.textContent = '!You: ' + message; // Echoing the inputted message
+              receivedMessageElement.classList.add('notYou-message'); // basically same as for user
+              chatMessages.appendChild(receivedMessageElement);
+            }
+            
+          
+            messageInput.addEventListener('keydown', function(event) {
+              if (event.key === 'Enter') {
+                sendMessage();
+              }
+            });
+          </script>
+    </div>
+    <div class="col-3 offset-1">
+        <h1>Donor: {{listing.author.username}}</h1>
+        <p>Address: {{listing.address}}</p>
+        <p>ABN: {{listing.abn}}</p>
+        <p>accepted: {{listing.accepted_listing}}</p>
+        <p>accepted user: {{listing.accepteduser.username}}</p>
+        <br>
+        {% for product in listing.food_products %}
+            <p>Category: {{product.category}}</p>
+            <p>Quantity: {{product.quantity}}</p>
+            <p>Description: {{product.description}}</p>
+            <br>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}

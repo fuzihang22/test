@@ -1,0 +1,75 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaflet Map with Layer Control</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-providers/1.9.0/leaflet-providers.min.js"></script>
+<script src="{{ url_for('static', filename='Js/map.js') }}"></script>
+<script>
+    let locations = {{location_list|tojson|safe}};
+</script> 
+<style>
+    #map { 
+        background-color: #f0f0f0; 
+        border-radius: 15px; 
+        height: 600px;
+        width: 100%;
+        background-color: #632e0249;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: bottom;
+        margin-bottom: 5px;
+        position: relative;
+    }
+</style>
+<body>
+    <div class="row">
+
+        <div class="col-8 offset-2">
+            <div id="map"></div>
+            <br>
+            <h1>Listings:</h1>
+
+            {% for listing in Listings %}
+                {% if listing.accepted_listing == False %}
+                    <h2 id={{listing.author.username}}>{{listing.author.buisness_name}}</h2>
+                    <p>Address: {{listing.address}}</p>
+                    {% if listing.author.id != user.id %}
+                    <form method="POST" action="/acceptlisting/{{listing.id}}">
+                        {{ form.hidden_tag() }}
+                        {{ form.submit() }}
+                    </form>
+                    {% endif %}
+                    <br>
+                    <div>
+                        <table class="table table-striped">
+                            <tr>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Description</th>
+                            </tr>
+                            {% for product in listing.food_products %}
+                                <tr>
+                                    <td>{{product.category}}</td>
+                                    <td>{{product.quantity}}</td>
+                                    <td>{{product.description}}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>    
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+{% endblock %}
